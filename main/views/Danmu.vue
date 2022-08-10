@@ -11,7 +11,7 @@
       <a class="mdui-ripple" @click="selectTab(1)">弹幕曲线</a>
       <a class="mdui-ripple" @click="selectTab(2)">弹幕词云</a>
     </div>
-    <div v-if="selectedTab === 0">
+    <div v-show="selectedTab === 0">
       <div class="mdui-table-fluid">
         <table class="mdui-table">
           <tbody>
@@ -38,10 +38,10 @@
       <button class="mdui-btn mdui-color-theme-accent mdui-ripple button" @click="srt">下载同传srt</button>
       <input type="file" accept="video/*" id="video-upload" name="video-upload" @change="replay" v-show="false"/>
     </div>
-    <div v-if="selectedTab === 1">
+    <div v-show="selectedTab === 1">
       <div id="danmu-chart" style="height: 400px;"></div>
     </div>
-    <div v-if="selectedTab === 2">
+    <div v-show="selectedTab === 2">
       <div class="mdui-textfield input">
         <label class="mdui-textfield-label">权值乘方</label>
         <input class="mdui-textfield-input" type="text" value="0.6" id="cloud-exp"/>
