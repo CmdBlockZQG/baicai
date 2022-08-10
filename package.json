@@ -1,12 +1,15 @@
 {
   "name": "baicai",
-  "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CmdBlockZQG/baicai.git"
   },
   "dependencies": {
     "axios": "^0.27.2",
