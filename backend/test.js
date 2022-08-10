@@ -22,15 +22,7 @@ function calcCloud(danmu) {
 }
 
 (async (data) => {
-  let liveData = await db('live').find({}, { sort: { time: -1 } })
-  liveData = liveData.slice(1)
-  let liveRes = []
-  for (let i = 0; i < liveData.length; i += 2) {
-    liveRes.push([liveData[i + 1].time, liveData[i].time])
-  }
-  fs.writeFileSync('../public/data/live.json', JSON.stringify(liveRes), { flag: 'w' })
-
-  const l = liveData[1].time, r = liveData[0].time
+  const l = 1659960106000, r = 1659975586004
   const danmuData = await db('danmu').find({ time: { $gt: l, $lt: r } }, { sort: { time: 1 }, projection: { _id: 0 } })
   const scData = await db('sc').find({ time: { $gt: l, $lt: r } }, { sort: { time: 1 }, projection: { _id: 0 } })
   const cloudData = calcCloud(danmuData)
@@ -38,4 +30,7 @@ function calcCloud(danmu) {
   fs.writeFileSync(`../public/data/cloud/${l}.json`, JSON.stringify(cloudData), { flag: 'w' })
   fs.writeFileSync(`../public/data/danmu/${l}.json`, JSON.stringify(danmuData), { flag: 'w' })
   fs.writeFileSync(`../public/data/sc/${l}.json`, JSON.stringify(scData), { flag: 'w' })
+
+  exec(`cd .. && git add --all . && git commit -m 'update ${l}' && git push`)
+  console.log('ok')
 })()
