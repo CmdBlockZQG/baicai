@@ -6,7 +6,6 @@ const router = createRouter({
     {
       path: '/',
       component: () => import('./App.vue'),
-      /*
       children: [
         {
           path: '/',
@@ -17,7 +16,6 @@ const router = createRouter({
           component: () => import('./views/Danmu.vue')
         }
       ]
-      */
     }
   ]
 })
