@@ -62,7 +62,6 @@ danmu.on('liveOff', async (data) => {
     type: 0,
     time: data.time
   })
-  console.log('下播', data)
 
   const liveData = await db('live').find({}, { sort: { time: -1 } })
   let liveRes = []
@@ -80,5 +79,5 @@ danmu.on('liveOff', async (data) => {
   fs.writeFileSync(`../public/data/danmu/${l}.json`, JSON.stringify(danmuData), { flag: 'w' })
   fs.writeFileSync(`../public/data/sc/${l}.json`, JSON.stringify(scData), { flag: 'w' })
 
-  exec(`cd .. && git add . && git commit -m '${l}' && git push`)
+  exec(`cd .. && git add --all . && git commit -m 'update ${l}' && git push`)
 })
