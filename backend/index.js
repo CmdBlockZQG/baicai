@@ -28,7 +28,6 @@ danmu.on('danmu', (data) => {
 })
 
 danmu.on('sc', (data) => {
-  wss(data)
   db('sc').insert(data)
 })
 

@@ -22,7 +22,15 @@ function calcCloud(danmu) {
 }
 
 (async (data) => {
-  const l = 1660132827000, r = 1660148113973
+  const liveData = await db('live').find({}, { sort: { time: -1 } })
+  let liveRes = []
+  console.log(liveData )
+  for (let i = 0; i < liveData.length; i += 2) {
+    liveRes.push([liveData[i + 1].time, liveData[i].time])
+  }
+  fs.writeFileSync('../public/data/live.json', JSON.stringify(liveRes), { flag: 'w' })
+
+  const l = liveData[1].time, r = liveData[0].time
   const danmuData = await db('danmu').find({ time: { $gt: l, $lt: r } }, { sort: { time: 1 }, projection: { _id: 0 } })
   const scData = await db('sc').find({ time: { $gt: l, $lt: r } }, { sort: { time: 1 }, projection: { _id: 0 } })
   const cloudData = calcCloud(danmuData)
