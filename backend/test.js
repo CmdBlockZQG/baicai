@@ -24,7 +24,6 @@ function calcCloud(danmu) {
 (async (data) => {
   const liveData = await db('live').find({}, { sort: { time: -1 } })
   let liveRes = []
-  console.log(liveData )
   for (let i = 0; i < liveData.length; i += 2) {
     liveRes.push([liveData[i + 1].time, liveData[i].time])
   }
