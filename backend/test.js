@@ -22,7 +22,7 @@ function calcCloud(danmu) {
 }
 
 (async (data) => {
-  const l = 1659960106000, r = 1659975586004
+  const l = 1660132827000, r = 1660148113973
   const danmuData = await db('danmu').find({ time: { $gt: l, $lt: r } }, { sort: { time: 1 }, projection: { _id: 0 } })
   const scData = await db('sc').find({ time: { $gt: l, $lt: r } }, { sort: { time: 1 }, projection: { _id: 0 } })
   const cloudData = calcCloud(danmuData)
