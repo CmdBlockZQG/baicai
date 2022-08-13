@@ -37,6 +37,9 @@
       <button class="mdui-btn mdui-color-theme-accent mdui-ripple button" @click="selectVideo">播放回放(选择本地视频文件)</button>
       <button class="mdui-btn mdui-color-theme-accent mdui-ripple button" @click="srt">下载同传srt</button>
       <input type="file" accept="video/*" id="video-upload" name="video-upload" @change="replay" v-show="false"/>
+      <p>同传srt可能有正负10s或以内的时间轴整体偏移，请在播放器中自行调整。</p>
+      <p>回放也需要您自行调整延时。在右上角输入框内填入延时毫秒数，可为负值（即提前），并确认即可直接应用。</p>
+      <p>回放仅支持PC端现代浏览器</p>
     </div>
     <div v-show="selectedTab === 1">
       <div id="danmu-chart" style="height: 400px;"></div>
