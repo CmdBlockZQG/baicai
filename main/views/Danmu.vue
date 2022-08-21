@@ -44,17 +44,37 @@
     <div v-show="selectedTab === 1">
       <div id="danmu-chart" style="height: 400px;"></div>
     </div>
-    <div v-show="selectedTab === 2">
-      <div class="mdui-textfield input">
-        <label class="mdui-textfield-label">权值乘方</label>
-        <input class="mdui-textfield-input" type="text" value="0.6" id="cloud-exp"/>
+    <div class="mdui-row" v-show="selectedTab === 2">
+
+      <div class="mdui-col-xs-3">
+        <div class="mdui-textfield input">
+          <label class="mdui-textfield-label">权值乘方</label>
+          <input class="mdui-textfield-input" type="text" value="0.6" id="cloud-exp"/>
+        </div>
+        <div class="mdui-textfield input">
+          <label class="mdui-textfield-label">缩放</label>
+          <input class="mdui-textfield-input" type="text" value="0.4" id="cloud-ratio"/>
+        </div>
+        <div style="height: 600px; overflow-y: scroll;">
+          <div class="mdui-list">
+            <label class="mdui-list-item mdui-ripple" v-for="(v, i) in cloudList">
+              <div class="mdui-checkbox">
+                <input type="checkbox" v-model="cloudSelect[i]"/>
+                <i class="mdui-checkbox-icon"></i>
+              </div>
+              <div class="mdui-list-item-content">{{ v[0] }} - {{ v[1].toFixed(2) }}</div>
+            </label>
+          </div>
+        </div>
+
+        <button class="mdui-btn mdui-color-theme-accent mdui-ripple button" @click="drawCloud">计算词云</button>
       </div>
-      <div class="mdui-textfield input">
-        <label class="mdui-textfield-label">缩放</label>
-        <input class="mdui-textfield-input" type="text" value="0.4" id="cloud-ratio"/>
+
+      <div class="mdui-col-xs-9">
+        <canvas width="1000" height="900" id="cloud-canvas"></canvas>
       </div>
-      <button class="mdui-btn mdui-color-theme-accent mdui-ripple button" @click="drawCloud">计算词云</button>
-      <canvas width="1200" height="900" id="cloud-canvas"></canvas>
+
+      
     </div>
   </template>
 </template>
@@ -72,7 +92,8 @@ let end = ref(0)
 
 let danmuList = ref([])
 let scList = ref([])
-let cloudRaw
+let cloudList = ref([])
+let cloudSelect = ref(new Array(200).fill(true, 0, 100).fill(false, 100, 200))
 
 let loading = ref(true)
 let tab
@@ -85,7 +106,7 @@ const init = async () => {
 
   danmuList.value = (await axios.get(`/data/danmu/${start.value}.json`)).data
   scList.value = (await axios.get(`/data/sc/${start.value}.json`)).data
-  cloudRaw = (await axios.get(`/data/cloud/${start.value}.json`)).data
+  cloudList.value = (await axios.get(`/data/cloud/${start.value}.json`)).data
 
   loading.value = false
   await nextTick()
@@ -218,8 +239,11 @@ function drawCloud() {
   const exp = Number(document.getElementById('cloud-exp').value)
   const ratio = Number(document.getElementById('cloud-ratio').value)
   let data = []
-  for (let i = 0; i < 100; ++i) {
-    data.push([cloudRaw[i][0], Math.pow(cloudRaw[i][1], exp) * ratio])
+  for (let i = 0, j = 0; i < 200 && j < 100; ++i) {
+    if (cloudSelect.value[i]) {
+      data.push([cloudList.value[i][0], Math.pow(cloudList.value[i][1], exp) * ratio])
+      ++j
+    }
   }
   WordCloud(document.getElementById('cloud-canvas'), { list: data })
 }

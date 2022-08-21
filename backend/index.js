@@ -53,7 +53,7 @@ function calcCloud(danmu) {
     arr.push([k, dic[k]])
   }
   arr.sort((a, b) => b[1] - a[1])
-  return arr.slice(0, 100)
+  return arr.slice(0, 200)
 }
 
 danmu.on('liveOff', async (data) => {
