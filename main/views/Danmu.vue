@@ -10,6 +10,8 @@
       <a class="mdui-ripple" @click="selectTab(0)">直播</a>
       <a class="mdui-ripple" @click="selectTab(1)">弹幕曲线</a>
       <a class="mdui-ripple" @click="selectTab(2)">弹幕词云</a>
+      <a class="mdui-ripple" @click="selectTab(3)">SC统计</a>
+      <a class="mdui-ripple" @click="selectTab(4)">弹幕统计(这里很卡 请耐心等待加载)</a>
     </div>
     <div v-show="selectedTab === 0">
       <div class="mdui-table-fluid">
@@ -76,6 +78,125 @@
 
       
     </div>
+
+    <div class="mdui-row" v-show="selectedTab === 3">
+      <div v-show="!showSCList">
+        <p>按照SC总金额降序排序</p>
+        <table class="mdui-table">
+          <thead>
+            <tr>
+              <th>uid</th>
+              <th>用户名</th>
+              <th>SC总金额</th>
+              <th>SC总数</th>
+              <th>#</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>#</td>
+              <td>所有用户</td>
+              <td>{{ scList.reduce((tot, cur) => tot + cur.price, 0) }}</td>
+              <td>{{ scList.length }}</td>
+              <td><button class="mdui-btn mdui-color-theme-accent mdui-ripple" @click="displaySCList(0)">查看全部SC</button></td>
+            </tr>
+            <tr v-for="cur in scUsers">
+              <td>{{ cur.uid }}</td>
+              <td>{{ cur.name }}</td>
+              <td>{{ cur.price }}</td>
+              <td>{{ cur.count }}</td>
+              <td><button class="mdui-btn mdui-color-theme-accent mdui-ripple" @click="displaySCList(cur.uid)">查看SC列表</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div v-show="showSCList">
+        <button class="mdui-btn mdui-color-theme-accent mdui-ripple" @click="showSCList = false">
+          <i class="mdui-icon material-icons">arrow_back</i>
+          返回
+        </button>
+        <table class="mdui-table">
+          <thead>
+            <tr>
+              <th>uid</th>
+              <th>用户名</th>
+              <th>金额</th>
+              <th>时间</th>
+              <th>内容</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template v-for="cur in scList">
+              <tr v-if="currentSCUser === 0 || cur.user.uid === currentSCUser">
+                <td>{{ cur.user.uid }}</td>
+                <td>{{ cur.user.name }}</td>
+                <td>{{ cur.price }}</td>
+                <td>{{ (new Date(cur.time)).toLocaleString() }}</td>
+                <td>{{ cur.content }}</td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      
+    </div>
+
+    <div v-if="selectedTab === 4">
+      <div v-if="!showDanmuList">
+        <p>按照弹幕总数降序排序</p>
+        <table class="mdui-table">
+          <thead>
+            <tr>
+              <th>uid</th>
+              <th>用户名</th>
+              <th>弹幕总数</th>
+              <th>#</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>#</td>
+              <td>所有用户</td>
+              <td>{{ danmuList.length }}</td>
+              <td><button class="mdui-btn mdui-color-theme-accent mdui-ripple" @click="displayDanmuList(0)">查看全部弹幕</button></td>
+            </tr>
+            <tr v-for="cur in danmuUsers">
+              <td>{{ cur.uid }}</td>
+              <td>{{ cur.name }}</td>
+              <td>{{ cur.count }}</td>
+              <td><button class="mdui-btn mdui-color-theme-accent mdui-ripple" @click="displayDanmuList(cur.uid)">查看弹幕列表</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div v-if="showDanmuList">
+        <button class="mdui-btn mdui-color-theme-accent mdui-ripple" @click="showDanmuList = false">
+          <i class="mdui-icon material-icons">arrow_back</i>
+          返回
+        </button>
+        <table class="mdui-table">
+          <thead>
+            <tr>
+              <th>uid</th>
+              <th>用户名</th>
+              <th>时间</th>
+              <th>内容</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template v-for="cur in danmuList">
+              <tr v-if="currentDanmuUser === 0 || cur.user.uid === currentDanmuUser">
+                <td>{{ cur.user.uid }}</td>
+                <td>{{ cur.user.name }}</td>
+                <td>{{ (new Date(cur.time)).toLocaleString() }}</td>
+                <td>{{ cur.content }}</td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </template>
 </template>
 
@@ -248,6 +369,14 @@ function drawCloud() {
   WordCloud(document.getElementById('cloud-canvas'), { list: data })
 }
 
+let scUsers = ref([])
+let showSCList = ref(false)
+let currentSCUser = ref(0)
+
+let danmuUsers = ref([])
+let showDanmuList = ref(false)
+let currentDanmuUser = ref(0)
+
 async function selectTab(index) {
   selectedTab.value = index
   tab.show(index)
@@ -255,6 +384,58 @@ async function selectTab(index) {
     await nextTick()
     drawDanmuChart()
   }
+  if (index === 3) { // SC统计
+    let dic = {}
+    for (let cur of scList.value) {
+      if (!dic[cur.user.uid]) {
+        dic[cur.user.uid] = {
+          uid: cur.user.uid,
+          name: cur.user.name,
+          count: 1,
+          price: cur.price
+        }
+      } else {
+        ++dic[cur.user.uid].count
+        dic[cur.user.uid].price += cur.price
+        dic[cur.user.uid].name = cur.user.name
+      }
+    }
+    scUsers.value = []
+    for (let k in dic) {
+      scUsers.value.push(dic[k])
+    }
+    scUsers.value.sort((a, b) => b.price - a.price)
+  }
+  if (index === 4) { // 弹幕统计
+    let dic = {}
+    for (let cur of danmuList.value) {
+      if (!dic[cur.user.uid]) {
+        dic[cur.user.uid] = {
+          uid: cur.user.uid,
+          name: cur.user.name,
+          count: 1,
+        }
+      } else {
+        ++dic[cur.user.uid].count
+        dic[cur.user.uid].name = cur.user.name
+      }
+    }
+    danmuUsers.value = []
+    for (let k in dic) {
+      danmuUsers.value.push(dic[k])
+    }
+    danmuUsers.value.sort((a, b) => b.count - a.count)
+  }
+}
+
+function displaySCList(uid) {
+  currentSCUser.value = uid
+  showSCList.value = true
+}
+
+function displayDanmuList(uid) {
+  currentDanmuUser.value = uid
+  showDanmuList.value = true
 }
 
 function selectVideo() {
