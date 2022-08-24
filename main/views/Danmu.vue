@@ -143,7 +143,7 @@
 
     <div v-if="selectedTab === 4">
       <div v-if="!showDanmuList">
-        <p>按照弹幕总数降序排序</p>
+        <p>按照弹幕总数降序排序，过滤表情弹幕</p>
         <table class="mdui-table">
           <thead>
             <tr>
@@ -185,7 +185,7 @@
           </thead>
           <tbody>
             <template v-for="cur in danmuList">
-              <tr v-if="currentDanmuUser === 0 || cur.user.uid === currentDanmuUser">
+              <tr v-if="cur.type === 0 && (currentDanmuUser === 0 || cur.user.uid === currentDanmuUser)">
                 <td>{{ cur.user.uid }}</td>
                 <td>{{ cur.user.name }}</td>
                 <td>{{ (new Date(cur.time)).toLocaleString() }}</td>
@@ -409,6 +409,7 @@ async function selectTab(index) {
   if (index === 4) { // 弹幕统计
     let dic = {}
     for (let cur of danmuList.value) {
+      if (cur.type) continue // 跳过表情弹幕
       if (!dic[cur.user.uid]) {
         dic[cur.user.uid] = {
           uid: cur.user.uid,
