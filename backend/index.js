@@ -8,6 +8,30 @@ const danmu = new Danmu(21402309)
 // 关注真白花音喵 关注真白花音谢谢喵
 
 danmu.connect()
+nodejieba.load()
+nodejieba.insertWord('叉出去')
+nodejieba.insertWord('かのん')
+nodejieba.insertWord('需一千万')
+nodejieba.insertWord('114514')
+nodejieba.insertWord('1919810')
+nodejieba.insertWord('哈哈哈')
+nodejieba.insertWord('帕清姬')
+nodejieba.insertWord('下次还敢')
+nodejieba.insertWord('ttk')
+nodejieba.insertWord('homo')
+
+nodejieba.insertWord('88888888')
+nodejieba.insertWord('www')
+nodejieba.insertWord('AA')
+nodejieba.insertWord('哈哈哈')
+nodejieba.insertWord('啊啊啊')
+const repeatDic = {
+  'A': 'AA',
+  '哈': '哈哈哈',
+  '啊': '啊啊啊',
+  '8': '88888888',
+  'w': 'www'
+}
 
 danmu.on('disconnect', () => {
   console.log('* 从服务器断开连接，重连')
@@ -41,7 +65,11 @@ danmu.on('liveOn', (data) => {
 function calcCloud(danmu) {
   let dic = {}
   for (let i = 0; i < danmu.length; ++i) {
-    const seg = nodejieba.extract(danmu[i].content, 999)
+    let x = danmu[i].content
+    if (x.length >= 3 && repeatDic[x[0]] && x === x[0].repeat(x.length)) {
+	  x = repeatDic[x[0]]
+    }
+    const seg = nodejieba.extract(x, 999)
     for (let j of seg) {
       const w = j.word
       if (!dic[w]) dic[w] = j.weight
