@@ -366,7 +366,7 @@ function drawCloud() {
       ++j
     }
   }
-  WordCloud(document.getElementById('cloud-canvas'), { list: data })
+  WordCloud(document.getElementById('cloud-canvas'), { list: data, fontFamily: 'roboto' })
 }
 
 let scUsers = ref([])

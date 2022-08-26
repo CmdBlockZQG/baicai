@@ -50,26 +50,30 @@ function calcCloud(danmu) {
   return arr.slice(0, 200)
 }
 
-(async (data) => {
-  /*
+
+
+(async () => {
+  // await db('live').insert({
+  //   type: 0,
+  //   time: 1661532817452
+  // })
+
   const liveData = await db('live').find({}, { sort: { time: -1 } })
   let liveRes = []
   for (let i = 0; i < liveData.length; i += 2) {
     liveRes.push([liveData[i + 1].time, liveData[i].time])
   }
   fs.writeFileSync('../public/data/live.json', JSON.stringify(liveRes), { flag: 'w' })
-  */
 
-  // const l = liveData[1].time, r = liveData[0].time
-  const l = 1661428879000, r = 1661445606227
+  const l = liveData[1].time, r = liveData[0].time
   const danmuData = await db('danmu').find({ time: { $gt: l, $lt: r } }, { sort: { time: 1 }, projection: { _id: 0 } })
-  // const scData = await db('sc').find({ time: { $gt: l, $lt: r } }, { sort: { time: 1 }, projection: { _id: 0 } })
+  const scData = await db('sc').find({ time: { $gt: l, $lt: r } }, { sort: { time: 1 }, projection: { _id: 0 } })
   const cloudData = calcCloud(danmuData)
 
   fs.writeFileSync(`../public/data/cloud/${l}.json`, JSON.stringify(cloudData), { flag: 'w' })
-  // fs.writeFileSync(`../public/data/danmu/${l}.json`, JSON.stringify(danmuData), { flag: 'w' })
-  // fs.writeFileSync(`../public/data/sc/${l}.json`, JSON.stringify(scData), { flag: 'w' })
+  fs.writeFileSync(`../public/data/danmu/${l}.json`, JSON.stringify(danmuData), { flag: 'w' })
+  fs.writeFileSync(`../public/data/sc/${l}.json`, JSON.stringify(scData), { flag: 'w' })
 
-  // exec(`cd .. && git add --all . && git commit -m 'update ${l}' && git push`)
+  exec(`cd .. && git add --all . && git commit -m 'update ${l}' && git push`)
   console.log('ok')
 })()
