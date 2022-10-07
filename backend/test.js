@@ -2,7 +2,7 @@ import db from './db.js'
 import fs from 'fs'
 import { exec } from 'child_process'
 import nodejieba from 'nodejieba'
-
+/*
 nodejieba.load()
 nodejieba.insertWord('叉出去')
 nodejieba.insertWord('かのん')
@@ -50,14 +50,14 @@ function calcCloud(danmu) {
   return arr.slice(0, 200)
 }
 
-
+*/
 
 (async () => {
   // await db('live').insert({
   //   type: 0,
   //   time: 1661532817452
   // })
-
+/*
   const liveData = await db('live').find({}, { sort: { time: -1 } })
   let liveRes = []
   for (let i = 0; i < liveData.length; i += 2) {
@@ -73,7 +73,7 @@ function calcCloud(danmu) {
   fs.writeFileSync(`../public/data/cloud/${l}.json`, JSON.stringify(cloudData), { flag: 'w' })
   fs.writeFileSync(`../public/data/danmu/${l}.json`, JSON.stringify(danmuData), { flag: 'w' })
   fs.writeFileSync(`../public/data/sc/${l}.json`, JSON.stringify(scData), { flag: 'w' })
-
-  exec(`cd .. && git add --all . && git commit -m 'update ${l}' && git push`)
+*/
+  exec(`cd .. && git add --all . && git commit -m 'test' && git push`)
   console.log('ok')
 })()
