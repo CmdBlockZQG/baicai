@@ -74,6 +74,6 @@ function calcCloud(danmu) {
   fs.writeFileSync(`../public/data/danmu/${l}.json`, JSON.stringify(danmuData), { flag: 'w' })
   fs.writeFileSync(`../public/data/sc/${l}.json`, JSON.stringify(scData), { flag: 'w' })
 
-  exec(`cd .. && git add --all . && git commit -m 'test' && git push`)
+  exec(`cd .. && git add --all . && git commit -m 'update ${l}' && git push`)
   console.log('ok')
 })()
