@@ -65,14 +65,28 @@ function calcCloud(danmu) {
   }
   fs.writeFileSync('../public/data/live.json', JSON.stringify(liveRes), { flag: 'w' })
 
-  const l = liveData[1].time, r = liveData[0].time
-  const danmuData = await db('danmu').find({ time: { $gt: l, $lt: r } }, { sort: { time: 1 }, projection: { _id: 0 } })
-  const scData = await db('sc').find({ time: { $gt: l, $lt: r } }, { sort: { time: 1 }, projection: { _id: 0 } })
-  const cloudData = calcCloud(danmuData)
+  let l = liveData[3].time, r = liveData[2].time
+  let danmuData = await db('danmu').find({ time: { $gt: l, $lt: r } }, { sort: { time: 1 }, projection: { _id: 0 } })
+  let scData = await db('sc').find({ time: { $gt: l, $lt: r } }, { sort: { time: 1 }, projection: { _id: 0 } })
+  let cloudData = calcCloud(danmuData)
 
   fs.writeFileSync(`../public/data/cloud/${l}.json`, JSON.stringify(cloudData), { flag: 'w' })
   fs.writeFileSync(`../public/data/danmu/${l}.json`, JSON.stringify(danmuData), { flag: 'w' })
   fs.writeFileSync(`../public/data/sc/${l}.json`, JSON.stringify(scData), { flag: 'w' })
+  
+  ////////////////////////////////////
+  
+  l = liveData[1].time
+  r = liveData[0].time
+  danmuData = await db('danmu').find({ time: { $gt: l, $lt: r } }, { sort: { time: 1 }, projection: { _id: 0 } })
+  scData = await db('sc').find({ time: { $gt: l, $lt: r } }, { sort: { time: 1 }, projection: { _id: 0 } })
+  cloudData = calcCloud(danmuData)
+
+  fs.writeFileSync(`../public/data/cloud/${l}.json`, JSON.stringify(cloudData), { flag: 'w' })
+  fs.writeFileSync(`../public/data/danmu/${l}.json`, JSON.stringify(danmuData), { flag: 'w' })
+  fs.writeFileSync(`../public/data/sc/${l}.json`, JSON.stringify(scData), { flag: 'w' })
+  
+  ///////////////////////////////////////
 
   exec(`cd .. && git add --all . && git commit -m 'update ${l}' && git push`)
   console.log('ok')
