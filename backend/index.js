@@ -3,6 +3,11 @@ import db from './db.js'
 import fs from 'fs'
 import { exec } from 'child_process'
 import nodejieba from 'nodejieba'
+import axios from 'axios'
+
+function log(text) {
+  console.log(`[${new Date().toLocaleString()}] ${text}`)
+}
 
 const danmu = new Danmu(21402309)
 // 关注真白花音喵 关注真白花音谢谢喵
@@ -34,16 +39,16 @@ const repeatDic = {
 }
 
 danmu.on('disconnect', () => {
-  console.log('* 从服务器断开连接，重连')
+  log('* 从服务器断开连接，重连')
   danmu.connect() // 重连
 })
 
 danmu.on('ws', () => {
-  console.log('* Websocket链接建立')
+  log('* Websocket链接建立')
 })
 
 danmu.on('ready', () => {
-  console.log('* 成功进入直播间')
+  log('* 成功进入直播间')
 })
 
 danmu.on('danmu', (data) => {
@@ -53,13 +58,6 @@ danmu.on('danmu', (data) => {
 
 danmu.on('sc', (data) => {
   db('sc').insert(data)
-})
-
-danmu.on('liveOn', (data) => {
-  db('live').insert({
-    type: 1,
-    time: data.time
-  })
 })
 
 function calcCloud(danmu) {
@@ -84,10 +82,10 @@ function calcCloud(danmu) {
   return arr.slice(0, 200)
 }
 
-danmu.on('liveOff', async (data) => {
+const liveOff = async () => {
   await db('live').insert({
     type: 0,
-    time: data.time
+    time: new Date().getTime()
   })
 
   const liveData = await db('live').find({}, { sort: { time: -1 } })
@@ -107,4 +105,23 @@ danmu.on('liveOff', async (data) => {
   fs.writeFileSync(`../public/data/sc/${l}.json`, JSON.stringify(scData), { flag: 'w' })
 
   exec(`cd .. && git add --all . && git commit -m 'update ${l}' && git push`)
-})
+}
+
+setInterval(async () => {
+  const lstL = await db('live').raw().findOne({}, { sort: { time: -1 } })
+  const { data } = await axios.get('https://api.live.bilibili.com/xlive/web-room/v2/index/getRoomPlayInfo?room_id=21402309&protocol=0,1&format=0,1,2&codec=0,1&qn=0&platform=web&ptype=8&dolby=5&panorama=1')
+  if (lstL.type) { // 数据库显示现在状态为直播中
+    if (!data.data.live_status) { // 但是最新数据显示已经下播了
+      log('下播')
+      await liveOff()
+    }
+  } else { // 数据库显示现在状态是没开播
+    if (data.data.live_status) { // 但是最新数据显示开播了
+      log(`开播 ${data.data.live_time}`)
+      await db('live').insert({ // 添加开播信息
+        type: 1,
+        time: data.data.live_time * 1000
+      })
+    }
+  }
+}, 1000 * 60 * 3)
